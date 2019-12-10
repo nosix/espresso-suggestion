@@ -113,7 +113,7 @@ class ViewInteractionCompletionContributor : CompletionContributor() {
                     )
                 )
                 """.trimIndent())
-                .withOnView("onView($order:$indent[${node.index}]${node.name})")
+                .withOnView("onView($order:$indent[${node.index}]${node.name.split(".").last()})")
             else -> LookupElementBuilder.create(
                 """
                 onView(

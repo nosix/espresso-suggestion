@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>org.example.espresso-complement</id>
+    <name>Espresso Intention to insert ViewInteraction</name>
+    <vendor email="support@funmake.jp" url="http://www.funmake.jp">funmake</vendor>
+
+    <description><![CDATA[
+    Insert onView(...) in your method body................
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!--suppress PluginXmlValidity -->
+    <depends>com.intellij.modules.androidstudio</depends>
+    <depends>org.jetbrains.android</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="kotlin" implementationClass="jp.funmake.espresso.completion.ViewInteractionCompletionContributor"/>
+        <!--
+        <intentionAction>
+            <className>jp.funmake.espresso.intention.InsertViewInteractionIntentionAction</className>
+            <category>Espresso</category>
+        </intentionAction>
+        -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>

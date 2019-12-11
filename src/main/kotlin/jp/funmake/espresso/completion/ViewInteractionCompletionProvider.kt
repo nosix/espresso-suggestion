@@ -50,29 +50,6 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
                 }
             }
         }
-
-        result.addElement(LookupElementBuilder.create("""
-                    fun childAtPosition(parentMatcher: Matcher<View>, position: Int): Matcher<View> {
-
-                        return object : TypeSafeMatcher<View>() {
-                            override fun describeTo(description: Description) {
-                                description.appendText("Child at position ${'$'}position in parent ")
-                                parentMatcher.describeTo(description)
-                            }
-
-                            public override fun matchesSafely(view: View): Boolean {
-                                val parent = view.parent
-                                return parent is ViewGroup && parentMatcher.matches(parent)
-                                        && view == parent.getChildAt(position)
-                            }
-                        }
-                    }
-                    """.trimIndent())
-            .withLookupString("childAtPosition")
-            .withPresentableText("fun childAtPosition")
-            .withTailText("(parentMatcher: Matcher<View>, position: Int)(parentMatcher: Matcher<View>, position: Int)", true)
-            .withTypeText("Matcher<View>", true)
-        )
     }
 
     private fun createLookupElement(

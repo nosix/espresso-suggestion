@@ -15,12 +15,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor language="kotlin" implementationClass="jp.funmake.espresso.completion.ViewInteractionCompletionContributor"/>
-        <!--
         <intentionAction>
-            <className>jp.funmake.espresso.intention.InsertViewInteractionIntentionAction</className>
+            <className>jp.funmake.espresso.intention.InsertChildAtPositionAction</className>
             <category>Espresso</category>
         </intentionAction>
-        -->
     </extensions>
 
     <actions>

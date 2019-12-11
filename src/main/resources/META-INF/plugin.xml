@@ -1,10 +1,10 @@
 <idea-plugin>
-    <id>org.example.espresso-complement</id>
-    <name>Espresso Intention to insert ViewInteraction</name>
-    <vendor email="support@funmake.jp" url="http://www.funmake.jp">funmake</vendor>
+    <id>jp.funmake.espresso-suggestion</id>
+    <name>Espresso Suggestion</name>
+    <vendor email="nosix@funmake.jp" url="https://github.com/nosix/espresso-suggestion">nosix</vendor>
 
     <description><![CDATA[
-    Insert onView(...) in your method body................
+    This plugin helps to write test code with espresso.
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html

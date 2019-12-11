@@ -26,27 +26,45 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
         val liEditors = getLayoutInspectorEditors(project)
 
         var sequenceNo = 1
-        FileWriter("dump.txt").use { out ->
-            for (editor in liEditors) {
-                val liFile = editor.virtualFile?.let { VfsUtilCore.virtualToIoFile(it) } ?: continue
-                val liContext = LayoutInspectorContext(LayoutFileDataParser.parseFromFile(liFile), editor)
-                visit(liContext.root) { node, depth -> out.dump(node, depth) }
+        for (editor in liEditors) {
+            val liFile = editor.virtualFile?.let { VfsUtilCore.virtualToIoFile(it) } ?: continue
+            val liContext = LayoutInspectorContext(LayoutFileDataParser.parseFromFile(liFile), editor)
 
-                val idCount = mutableMapOf<String, Int>()
-                visit(liContext.root) { node, _ ->
-                    node.id?.let { id ->
-                        if (id.startsWith("id/")) {
-                            idCount.compute(id.replace("id/", "")) { _, count ->
-                                (count ?: 0) + 1
-                            }
+            val idCount = mutableMapOf<String, Int>()
+            visit(liContext.root) { node, _ ->
+                node.id?.let { id ->
+                    if (id.startsWith("id/")) {
+                        idCount.compute(id.replace("id/", "")) { _, count ->
+                            (count ?: 0) + 1
                         }
                     }
                 }
+            }
 
-                for (n in liContext.root.children) {
-                    visit(n) { node, depth ->
-                        result.addElement(createLookupElement(sequenceNo++, node, depth, idCount))
+            for (n in liContext.root.children) {
+                visit(n) { node, depth ->
+                    result.addElement(createLookupElement(sequenceNo++, node, depth, idCount))
+                }
+            }
+        }
+        for (editor in liEditors) {
+            val liFile = editor.virtualFile?.let { VfsUtilCore.virtualToIoFile(it) } ?: continue
+            val liContext = LayoutInspectorContext(LayoutFileDataParser.parseFromFile(liFile), editor)
+
+            val idCount = mutableMapOf<String, Int>()
+            visit(liContext.root) { node, _ ->
+                node.id?.let { id ->
+                    if (id.startsWith("id/")) {
+                        idCount.compute(id.replace("id/", "")) { _, count ->
+                            (count ?: 0) + 1
+                        }
                     }
+                }
+            }
+
+            for (n in liContext.root.children) {
+                visit(n) { node, depth ->
+                    result.addElement(createLookupElement(sequenceNo++, node, depth, idCount))
                 }
             }
         }
@@ -151,6 +169,7 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
             .filterIsInstance<LayoutInspectorEditor>()
     }
 
+    @Suppress("unused")
     private fun FileWriter.dump(node: ViewNode, depth: Int) {
         write("${"  ".repeat(depth)}${node.name} ${node.id} ${node.displayInfo.contentDesc}\n")
     }

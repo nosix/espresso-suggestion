@@ -17,6 +17,8 @@ import java.io.FileWriter
 
 class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameters>() {
 
+    private val mCache: MutableMap<String, List<LookupElementBuilder>> = mutableMapOf()
+
     override fun addCompletions(
         parameters: CompletionParameters,
         context: ProcessingContext,
@@ -24,10 +26,19 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
     ) {
         val project = parameters.editor.project ?: throw IllegalStateException()
         val liEditors = getLayoutInspectorEditors(project)
+        val cacheBackup = mCache.toMap()
+        mCache.clear()
 
-        var sequenceNo = 1
         for (editor in liEditors) {
             val liFile = editor.virtualFile?.let { VfsUtilCore.virtualToIoFile(it) } ?: continue
+
+            val lookups = cacheBackup[liFile.name]
+            if (lookups != null) {
+                lookups.forEach { result.addElement(it) }
+                mCache[liFile.name] = lookups
+                continue
+            }
+
             val liContext = LayoutInspectorContext(LayoutFileDataParser.parseFromFile(liFile), editor)
 
             val idCount = mutableMapOf<String, Int>()
@@ -41,32 +52,16 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
                 }
             }
 
+            val newLookups = mutableListOf<LookupElementBuilder>()
+            var sequenceNo = 1
             for (n in liContext.root.children) {
                 visit(n) { node, depth ->
-                    result.addElement(createLookupElement(sequenceNo++, node, depth, idCount))
+                    val lookup = createLookupElement(sequenceNo++, node, depth, idCount)
+                    result.addElement(lookup)
+                    newLookups.add(lookup)
                 }
             }
-        }
-        for (editor in liEditors) {
-            val liFile = editor.virtualFile?.let { VfsUtilCore.virtualToIoFile(it) } ?: continue
-            val liContext = LayoutInspectorContext(LayoutFileDataParser.parseFromFile(liFile), editor)
-
-            val idCount = mutableMapOf<String, Int>()
-            visit(liContext.root) { node, _ ->
-                node.id?.let { id ->
-                    if (id.startsWith("id/")) {
-                        idCount.compute(id.replace("id/", "")) { _, count ->
-                            (count ?: 0) + 1
-                        }
-                    }
-                }
-            }
-
-            for (n in liContext.root.children) {
-                visit(n) { node, depth ->
-                    result.addElement(createLookupElement(sequenceNo++, node, depth, idCount))
-                }
-            }
+            mCache[liFile.name] = newLookups
         }
     }
 

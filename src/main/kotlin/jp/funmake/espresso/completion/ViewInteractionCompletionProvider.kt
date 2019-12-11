@@ -25,6 +25,7 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
         val project = parameters.editor.project ?: throw IllegalStateException()
         val liEditors = getLayoutInspectorEditors(project)
 
+        var sequenceNo = 1
         FileWriter("dump.txt").use { out ->
             for (editor in liEditors) {
                 val liFile = editor.virtualFile?.let { VfsUtilCore.virtualToIoFile(it) } ?: continue
@@ -42,7 +43,6 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
                     }
                 }
 
-                var sequenceNo = 1
                 for (n in liContext.root.children) {
                     visit(n) { node, depth ->
                         result.addElement(createLookupElement(sequenceNo++, node, depth, idCount))

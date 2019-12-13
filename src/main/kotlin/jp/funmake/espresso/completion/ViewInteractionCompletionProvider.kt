@@ -12,7 +12,9 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.util.ProcessingContext
+import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import java.io.FileWriter
 
 class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameters>() {
@@ -122,6 +124,15 @@ class ViewInteractionCompletionProvider : CompletionProvider<CompletionParameter
         .withLookupStrings(mutableListOf("Espresso.$onView", onView))
         .withPresentableText("Espresso.$onView")
         .withTypeText("ViewInteraction", true)
+        .withInsertHandler { context, _ ->
+            runWriteAction {
+                val offset = context.editor.caretModel.offset
+                context.file.findElementAt(offset)?.parent?.let {
+                    CodeStyleManager.getInstance(it.manager)
+                        .reformat(it)
+                }
+            }
+        }
 
     private fun getParentNode(node: ViewNode, idCount: Map<String, Int>): String {
         val parent = node.parent
